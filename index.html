@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zhaohong Yao | Ph.D. Student in Economics</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --orange:  #F47321;
+      --orange-d:#c45200;
+      --navy:    #1a2e4a;
+      --light:   #fafafa;
+      --muted:   #64748b;
+      --border:  #e2e8f0;
+      --text:    #1e293b;
+      --nav-h:   54px;
+    }
+
+    html, body { height: 100%; overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--text); background: #fff; line-height: 1.7;
+    }
+    a { color: var(--orange-d); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: var(--nav-h);
+      background: #fff;
+      border-bottom: 2px solid var(--orange);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem;
+    }
+    .nav-brand { font-weight: 700; font-size: 1rem; color: var(--navy); cursor: pointer; }
+    .nav-links { display: flex; gap: 1.4rem; list-style: none; }
+    .nav-links a {
+      font-size: .86rem; color: var(--muted); font-weight: 500; cursor: pointer;
+      padding-bottom: 2px; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s;
+    }
+    .nav-links a:hover,
+    .nav-links a.active { color: var(--orange); border-bottom-color: var(--orange); text-decoration: none; }
+
+    /* ── Slide container ── */
+    main { position: fixed; top: var(--nav-h); left: 0; right: 0; bottom: 0; overflow: hidden; }
+
+    /* ── Pages ── */
+    .page {
+      position: absolute; inset: 0; overflow-y: auto;
+      opacity: 0; transform: translateY(14px);
+      pointer-events: none; visibility: hidden;
+      transition: opacity .38s ease, transform .38s ease;
+    }
+    .page.active { opacity: 1; transform: translateY(0); pointer-events: all; visibility: visible; }
+
+    /* ── Dot indicator ── */
+    .dot-nav {
+      position: fixed; right: 1rem; top: 50%; transform: translateY(-50%);
+      z-index: 150; display: flex; flex-direction: column; gap: .5rem;
+    }
+    .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--border); border: 2px solid #ccc; cursor: pointer;
+      transition: background .2s, border-color .2s;
+    }
+    .dot.active { background: var(--orange); border-color: var(--orange); }
+    .dot:hover  { background: var(--orange); border-color: var(--orange); }
+
+    /* ── Section layout ── */
+    .section-inner { max-width: 880px; margin: 0 auto; padding: 3rem 2rem 2.5rem; }
+    .section-title {
+      font-size: 1.4rem; font-weight: 800; color: var(--navy);
+      margin-bottom: 1.8rem; padding-bottom: .5rem;
+      border-bottom: 3px solid var(--orange); display: inline-block;
+    }
+
+    /* ══════════════════
+       PAGE 1 — HOME
+       ══════════════════ */
+    #home { display: flex; flex-direction: row; height: 100%; }
+
+    .home-left {
+      width: 40%; flex-shrink: 0;
+      background: var(--orange);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 2.5rem 2rem; text-align: center; color: #fff;
+    }
+    .home-photo {
+      width: 148px; height: 148px; border-radius: 50%; object-fit: cover;
+      border: 4px solid rgba(255,255,255,.6);
+      box-shadow: 0 6px 24px rgba(0,0,0,.2);
+      margin-bottom: 1.2rem;
+    }
+    .home-left h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: .2rem; }
+    .home-left .zh-name { font-size: .95rem; opacity: .8; margin-bottom: .7rem; }
+    .home-left .affil { font-size: .88rem; opacity: .9; line-height: 1.5; margin-bottom: 1rem; }
+    .interest-pill {
+      display: inline-block;
+      background: rgba(255,255,255,.2);
+      border: 1px solid rgba(255,255,255,.45);
+      border-radius: 99px; padding: .28rem .95rem;
+      font-size: .8rem; font-weight: 600; color: #fff;
+      margin-bottom: 1.4rem;
+    }
+    .contact-links { display: flex; flex-direction: column; gap: .55rem; width: 100%; }
+    .contact-links a {
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.35);
+      border-radius: 6px; padding: .38rem .9rem;
+      color: #fff; font-size: .84rem;
+      transition: background .2s;
+    }
+    .contact-links a:hover { background: rgba(255,255,255,.28); text-decoration: none; }
+    .contact-links svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    .home-right {
+      flex: 1; overflow-y: auto;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 3.5rem 3rem 2.5rem;
+    }
+    .home-right .section-title { margin-bottom: 1.2rem; }
+    .home-right p { font-size: .97rem; color: #334155; margin-bottom: .85rem; line-height: 1.75; }
+    .home-right p:last-child { margin-bottom: 0; }
+
+    /* ══════════════════
+       EDUCATION
+       ══════════════════ */
+    .edu-list { display: flex; flex-direction: column; gap: 1.3rem; }
+    .edu-item { display: flex; gap: 1.2rem; align-items: flex-start; }
+    .edu-icon {
+      flex-shrink: 0; width: 44px; height: 44px;
+      background: var(--orange); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 700; font-size: .78rem; text-align: center; line-height: 1.2;
+    }
+    .edu-body h3 { font-size: 1rem; font-weight: 700; margin-bottom: .1rem; }
+    .edu-body .degree { color: var(--muted); font-size: .9rem; }
+    .edu-body .edu-date { color: var(--orange-d); font-size: .82rem; font-weight: 600; margin-top: .1rem; }
+
+    /* ══════════════════
+       PAPERS
+       ══════════════════ */
+    .paper-list { display: flex; flex-direction: column; gap: 1.3rem; }
+    .paper-item {
+      padding: 1.1rem 1.3rem;
+      border-left: 3px solid var(--orange);
+      border-radius: 0 6px 6px 0;
+      box-shadow: 0 1px 4px rgba(0,0,0,.05);
+      background: #fff;
+    }
+    .paper-title { font-weight: 700; font-size: .97rem; margin-bottom: .28rem; }
+    .paper-authors { font-size: .85rem; color: var(--muted); margin-bottom: .28rem; }
+    .paper-desc { font-size: .86rem; color: #4b5563; line-height: 1.6; }
+    .paper-tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+    .tag {
+      background: #f3f4f6; color: #374151;
+      border-radius: 99px; padding: .16rem .6rem;
+      font-size: .74rem; font-weight: 600; border: 1px solid #e5e7eb;
+    }
+
+    /* ══════════════════
+       PUBLICATIONS
+       ══════════════════ */
+    .pub-list { display: flex; flex-direction: column; gap: 1.2rem; }
+    .pub-item { display: flex; gap: 1rem; align-items: flex-start; }
+    .pub-num {
+      flex-shrink: 0; width: 28px; height: 28px;
+      background: var(--orange); color: #fff;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: .8rem; font-weight: 700; margin-top: .1rem;
+    }
+    .pub-title { font-weight: 700; font-size: .97rem; margin-bottom: .22rem; }
+    .pub-meta  { font-size: .86rem; color: var(--muted); }
+    .pub-venue { font-style: italic; }
+    .pub-desc  { font-size: .86rem; color: #4b5563; margin-top: .4rem; line-height: 1.6; }
+
+    /* ══════════════════
+       CONFERENCES
+       ══════════════════ */
+    .conf-list { display: flex; flex-direction: column; gap: .9rem; }
+    .conf-item {
+      display: flex; gap: 1rem; align-items: flex-start;
+      padding: .85rem 1.1rem; background: #fff;
+      border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+    }
+    .conf-bullet {
+      flex-shrink: 0; width: 9px; height: 9px;
+      background: var(--orange); border-radius: 50%; margin-top: .58rem;
+    }
+    .conf-name  { font-weight: 700; font-size: .95rem; }
+    .conf-paper { font-size: .86rem; color: var(--muted); margin-top: .08rem; }
+    .conf-year  { font-size: .8rem; color: var(--orange-d); font-weight: 600; margin-top: .08rem; }
+
+    /* ══════════════════
+       EXPERIENCE
+       ══════════════════ */
+    .exp-list { display: flex; flex-direction: column; gap: 1.6rem; }
+    .exp-item  { position: relative; padding-left: 1.4rem; }
+    .exp-item::before {
+      content: ""; position: absolute; left: 0; top: .6rem; bottom: -1rem;
+      width: 2px; background: var(--border);
+    }
+    .exp-item:last-child::before { display: none; }
+    .exp-item::after {
+      content: ""; position: absolute; left: -4px; top: .56rem;
+      width: 11px; height: 11px;
+      background: var(--orange); border-radius: 50%;
+      border: 2px solid #fff; box-shadow: 0 0 0 2px var(--orange);
+    }
+    .exp-header { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .2rem; margin-bottom: .22rem; }
+    .exp-title  { font-weight: 700; font-size: .97rem; }
+    .exp-role   { font-size: .84rem; color: var(--orange-d); font-weight: 600; }
+    .exp-date   { font-size: .81rem; color: var(--muted); white-space: nowrap; }
+    .exp-bullets { margin: .4rem 0 0 1rem; }
+    .exp-bullets li { font-size: .86rem; color: #4b5563; margin-bottom: .27rem; line-height: 1.55; }
+
+    /* ══════════════════
+       AWARDS
+       ══════════════════ */
+    .award-list { display: flex; flex-direction: column; gap: .6rem; }
+    .award-item {
+      display: flex; align-items: flex-start; gap: .75rem;
+      padding: .6rem .9rem; border-radius: 6px;
+      background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+    }
+    .award-star { color: var(--orange); font-size: .95rem; flex-shrink: 0; margin-top: .15rem; }
+    .award-text { font-size: .9rem; }
+    .award-year { color: var(--orange-d); font-weight: 600; }
+
+    /* ══════════════════
+       HOBBIES
+       ══════════════════ */
+    .hobby-grid { display: flex; flex-wrap: wrap; gap: 1.1rem; }
+    .hobby-card {
+      display: flex; flex-direction: column; align-items: center; gap: .5rem;
+      background: #fff; border-radius: 10px;
+      padding: 1.5rem 1.6rem;
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--orange);
+      flex: 1; min-width: 110px;
+    }
+    .hobby-icon { font-size: 1.9rem; line-height: 1; }
+    .hobby-name { font-size: .9rem; font-weight: 600; color: var(--navy); }
+
+    /* ── Page footer ── */
+    .page-footer {
+      text-align: center; padding: 1.2rem 2rem;
+      font-size: .78rem; color: var(--muted);
+      border-top: 1px solid var(--border); margin-top: 1.8rem;
+    }
+    .page-footer a { color: var(--orange-d); }
+
+    /* ── Responsive ── */
+    @media (max-width: 680px) {
+      #home { flex-direction: column; }
+      .home-left { width: 100%; padding: 2rem 1.5rem; }
+      .home-right { padding: 2rem 1.5rem; }
+      .home-photo { width: 110px; height: 110px; }
+      .nav-links { gap: .7rem; }
+      .nav-links a { font-size: .74rem; }
+      .dot-nav { display: none; }
+      .section-inner { padding: 2rem 1.2rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Nav ── -->
+<nav>
+  <span class="nav-brand" data-page="home">Zhaohong Yao</span>
+  <ul class="nav-links">
+    <li><a data-page="home" class="active">About</a></li>
+    <li><a data-page="education">Education</a></li>
+    <li><a data-page="research">Research</a></li>
+    <li><a data-page="publications">Publications</a></li>
+    <li><a data-page="conferences">Conferences</a></li>
+    <li><a data-page="experience">Experience</a></li>
+    <li><a data-page="awards">Awards</a></li>
+    <li><a data-page="hobbies">Hobbies</a></li>
+  </ul>
+</nav>
+
+<div class="dot-nav" id="dotNav"></div>
+
+<main>
+
+  <!-- ── PAGE 1: HOME ── -->
+  <section class="page active" id="home">
+    <div class="home-left">
+      <img class="home-photo" src="photo.jpg" alt="Zhaohong Yao" />
+      <h1>Zhaohong Yao</h1>
+      <p class="zh-name">姚兆鸿</p>
+      <p class="affil">Ph.D. Student in Economics<br />University of Miami</p>
+      <span class="interest-pill">Macro-Finance</span>
+      <div class="contact-links">
+        <a href="mailto:zxy584@miami.edu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/>
+          </svg>
+          zxy584@miami.edu
+        </a>
+        <a href="https://www.linkedin.com/in/ZhaohongYao" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/>
+            <rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/>
+          </svg>
+          LinkedIn
+        </a>
+      </div>
+    </div>
+    <div class="home-right">
+      <h2 class="section-title">About</h2>
+      <p>I am a Ph.D. student in Economics at the <strong>University of Miami</strong> (2024&ndash;2029, expected),
+        with research interests in macro-finance. I hold an M.S. in Applied Economics from
+        <strong>Johns Hopkins University</strong> and a B.A. in Economics from
+        <strong>Renmin University of China</strong>.</p>
+      <p>My current work focuses on credit card debt, global reserve currency dynamics,
+        and the macro-financial consequences of financial-sector expansion. Ongoing projects include a dynamic discrete-choice 
+        model of credit-card debt resolution, a study of de-dollarization in global central bank reserves, and an investigation 
+        of how financial expansion affects export product quality in Chinese manufacturing firms.</p>
+      <p>Prior to my doctoral studies, I worked as a research assistant at the Chinese University of Hong Kong
+        (Shenzhen).</p>
+    </div>
+  </section>
+
+  <!-- ── PAGE 2: EDUCATION ── -->
+  <section class="page" id="education">
+    <div class="section-inner">
+      <h2 class="section-title">Education</h2>
+      <div class="edu-list">
+        <div class="edu-item">
+          <div class="edu-icon">UM</div>
+          <div class="edu-body">
+            <h3>University of Miami &mdash; Miami, FL, USA</h3>
+            <div class="degree">Ph.D. in Economics</div>
+            <div class="edu-date">Aug 2024 &ndash; Jun 2029 (Expected)</div>
+          </div>
+        </div>
+        <div class="edu-item">
+          <div class="edu-icon">JHU</div>
+          <div class="edu-body">
+            <h3>Johns Hopkins University &mdash; Washington, DC, USA</h3>
+            <div class="degree">M.S. in Applied Economics</div>
+            <div class="edu-date">Sep 2022 &ndash; May 2024</div>
+          </div>
+        </div>
+        <div class="edu-item">
+          <div class="edu-icon">RUC</div>
+          <div class="edu-body">
+            <h3>Renmin University of China &mdash; Beijing, China</h3>
+            <div class="degree">B.A. in Economics</div>
+            <div class="edu-date">Sep 2018 &ndash; Jun 2022</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PAGE 3: WORKING PAPERS ── -->
+  <section class="page" id="research">
+    <div class="section-inner">
+      <h2 class="section-title">Working Papers &amp; Research in Progress</h2>
+      <div class="paper-list">
+
+        <div class="paper-item">
+          <div class="paper-title">Should we ban debt settlement companies? </div>
+          <div class="paper-authors">Zhaohong Yao (First Author) &mdash; University of Miami</div>
+          <div class="paper-desc">Develops a dynamic discrete-choice model of household debt resolution in the U.S. credit market,
+            examining four major pathways: repayment, settlement, delinquency, and bankruptcy. Evaluates how introducing
+            a settlement option affects default behavior and credit market outcomes.</div>
+          <div class="paper-tags">
+            <span class="tag">Working Paper</span>
+            <span class="tag">First Author</span>
+            <span class="tag">Discrete-Choice Model</span>
+            <span class="tag">SMM</span>
+          </div>
+        </div>
+
+        <div class="paper-item">
+          <div class="paper-title">The Effect of Financial Expansion on Export Product Quality: Evidence from Chinese Manufacturing Firms</div>
+          <div class="paper-authors">Co-author &mdash; University of Miami</div>
+          <div class="paper-desc">Studies whether regional financial-sector expansion distorts resource allocation and reduces
+            manufacturing firms' export product quality.</div>
+          <div class="paper-tags">
+            <span class="tag">Working Paper</span>
+            <span class="tag">TWFE</span>
+            <span class="tag"> Hallak–Schott ex-post inference approach</span>
+          </div>
+        </div>
+
+        <div class="paper-item">
+          <div class="paper-title">Housing Price Controls and Local Fiscal Stress: DID Evidence from China</div>
+          <div class="paper-authors">Co-author &mdash; Johns Hopkins University</div>
+          <div class="paper-desc">Assesses whether China's post-2016 housing price control package unintentionally raised
+            local fiscal stress in cities reliant on land finance. Presented at the WEAI 99th Annual Conference.</div>
+          <div class="paper-tags">
+            <span class="tag">Conference Presented</span>
+            <span class="tag">DID</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PAGE 4: PUBLICATIONS ── -->
+  <section class="page" id="publications">
+    <div class="section-inner">
+      <h2 class="section-title">Publications</h2>
+      <div class="pub-list">
+        <div class="pub-item">
+          <div class="pub-num">1</div>
+          <div>
+            <div class="pub-title">De-Dollarization of Central Bank Reserves in the World Economy: 2015&ndash;2025</div>
+            <div class="pub-meta">Co-author &mdash; University of Miami.<br />
+              <span class="pub-venue">Journal of Risk and Financial Management</span> (Forthcoming).</div>
+            <div class="pub-desc">Examines de-dollarization in central bank reserve portfolios over 2015–2025 by explicitly incorporating gold 
+              into total reserves and applying a reserve-accounting framework inspired by Solow-style decomposition. 
+              Using data for the ten largest official gold holders outside the United States, the paper separates active 
+              portfolio reallocation from passive valuation effects and shows that the decline in the U.S. dollar’s reserve 
+              share becomes substantially larger once gold is included. The results indicate that, for most countries, 
+              observed de-dollarization is driven more by gold-price appreciation and valuation effects than by large active 
+              reductions in dollar holdings, although active gold accumulation is important in cases such as Russia, China, India, and Japan.</div>
+            <div class="paper-tags" style="margin-top:.5rem;">
+              <span class="tag">JRFM</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PAGE 5: CONFERENCES ── -->
+  <section class="page" id="conferences">
+    <div class="section-inner">
+      <h2 class="section-title">Conference Presentations</h2>
+      <div class="conf-list">
+        <div class="conf-item">
+          <div class="conf-bullet"></div>
+          <div>
+            <div class="conf-name">WEAI 99th Annual Conference</div>
+            <div class="conf-paper">"Housing Price Controls and Local Fiscal Stress: DID Evidence from China"</div>
+            <div class="conf-year">2024</div>
+          </div>
+        </div>
+        <div class="conf-item">
+          <div class="conf-bullet"></div>
+          <div>
+            <div class="conf-name">2023 Asia-Pacific Conference on Economics and Finance (APEF)</div>
+            <div class="conf-paper">"Research on Capacities to Undertake the Automobile Manufacturing Industry of Cities in Hebei Province Based on Entropy-TOPSIS Model"</div>
+            <div class="conf-year">2023</div>
+          </div>
+        </div>
+        <div class="conf-item">
+          <div class="conf-bullet"></div>
+          <div>
+            <div class="conf-name">6th International Conference on Economics and Social Sciences</div>
+            <div class="conf-paper">"The Effect of Local Government Debt for Infrastructure Development on Economic Development Based on K-means Clustering and Random Forest"</div>
+            <div class="conf-year">2023</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PAGE 6: EXPERIENCE ── -->
+  <section class="page" id="experience">
+    <div class="section-inner">
+      <h2 class="section-title">Research Experience</h2>
+      <div class="exp-list">
+
+        <div class="exp-item">
+          <div class="exp-header">
+            <div>
+              <div class="exp-title">University of Miami</div>
+              <div class="exp-role">Ph.D. Research &mdash; Macro-Finance</div>
+            </div>
+            <div class="exp-date">Aug 2024 &ndash; Present</div>
+          </div>
+          <ul class="exp-bullets">
+            <li>Developing a dynamic discrete-choice model of credit-card debt resolution implemented in Julia with SMM estimation.</li>
+            <li>Co-authoring a working paper on financial expansion and export product quality using Chinese manufacturing firm-level panel data.</li>
+            <li>Co-authored a forthcoming article on global central bank de-dollarization (2015&ndash;2025) for the <em>Journal of Risk and Financial Management</em>.</li>
+          </ul>
+        </div>
+
+        <div class="exp-item">
+          <div class="exp-header">
+            <div>
+              <div class="exp-title">The Chinese University of Hong Kong (Shenzhen)</div>
+              <div class="exp-role">Research Assistant</div>
+            </div>
+            <div class="exp-date">Sep 2023 &ndash; Jan 2024</div>
+          </div>
+          <ul class="exp-bullets">
+            <li>Investigated whether local officials' political networks drive local government debt expansion.</li>
+            <li>Built web-scraping pipelines in Python to collect appointment data for officials in 203 cities; constructed superior&ndash;subordinate network measures via rule-based NLP.</li>
+            <li>Integrated 2,800+ LGFV entities from Wind to reconstruct a provincial implicit-debt panel; implemented TWFE regressions in Stata for baseline identification.</li>
+          </ul>
+        </div>
+
+        <div class="exp-item">
+          <div class="exp-header">
+            <div>
+              <div class="exp-title">Johns Hopkins University</div>
+              <div class="exp-role">Second Author / Project Lead</div>
+            </div>
+            <div class="exp-date">Jun 2023 &ndash; Jan 2024</div>
+          </div>
+          <ul class="exp-bullets">
+            <li>Built a city-level panel for the housing price controls study; conducted DID analysis with event-study parallel-trends testing; presented at the WEAI 99th Annual Conference.</li>
+            <li>Led Entropy-TOPSIS evaluation of automobile manufacturing capacity across Hebei Province; field-collected 1,000+ data points and produced geospatial choropleth visualizations.</li>
+          </ul>
+        </div>
+
+        <div class="exp-item">
+          <div class="exp-header">
+            <div>
+              <div class="exp-title">Renmin University of China</div>
+              <div class="exp-role">Research Assistant</div>
+            </div>
+            <div class="exp-date">Nov 2021 &ndash; Feb 2022</div>
+          </div>
+          <ul class="exp-bullets">
+            <li>Cleaned and standardized county-level demographic indicators for 43 counties in Yunnan Province.</li>
+            <li>Produced 46 visualizations (box plots, time series, distribution plots) in Stata to support poverty alleviation policy documentation.</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PAGE 7: AWARDS ── -->
+  <section class="page" id="awards">
+    <div class="section-inner">
+      <h2 class="section-title">Honors &amp; Awards</h2>
+      <div class="award-list">
+        <div class="award-item">
+          <div class="award-star">&#9733;</div>
+          <div class="award-text">Outstanding Graduate &mdash; Renmin University of China <span class="award-year">(2022)</span></div>
+        </div>
+        <div class="award-item">
+          <div class="award-star">&#9733;</div>
+          <div class="award-text">First-Class Scholarship for Academic Excellence &mdash; Renmin University of China <span class="award-year">(2020, 2021)</span></div>
+        </div>
+        <div class="award-item">
+          <div class="award-star">&#9733;</div>
+          <div class="award-text">Honorary Title of Outstanding Student &mdash; Renmin University of China <span class="award-year">(2020, 2021)</span></div>
+        </div>
+        <div class="award-item">
+          <div class="award-star">&#9733;</div>
+          <div class="award-text">Outstanding Student Leader &mdash; Renmin University of China <span class="award-year">(2020, 2021)</span></div>
+        </div>
+        <div class="award-item">
+          <div class="award-star">&#9733;</div>
+          <div class="award-text">Third-Class Scholarship for Academic Performance &mdash; Renmin University of China <span class="award-year">(2019)</span></div>
+        </div>
+        <div class="award-item">
+          <div class="award-star">&#9733;</div>
+          <div class="award-text">Outstanding Volunteer in Community Service <span class="award-year">(2019, 2020, 2021)</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PAGE 8: HOBBIES ── -->
+  <section class="page" id="hobbies">
+    <div class="section-inner">
+      <h2 class="section-title">Hobbies &amp; Interests</h2>
+      <div class="hobby-grid">
+        <div class="hobby-card"><div class="hobby-icon">&#127947;</div><div class="hobby-name">Fitness</div></div>
+        <div class="hobby-card"><div class="hobby-icon">&#127928;</div><div class="hobby-name">Guitar</div></div>
+        <div class="hobby-card"><div class="hobby-icon">&#127908;</div><div class="hobby-name">Band</div></div>
+        <div class="hobby-card"><div class="hobby-icon">&#127936;</div><div class="hobby-name">Basketball</div></div>
+        <div class="hobby-card"><div class="hobby-icon">&#127955;</div><div class="hobby-name">Table Tennis</div></div>
+      </div>
+      <div class="page-footer">
+        &copy; 2025 Zhaohong Yao &nbsp;&bull;&nbsp; Ph.D. Student in Economics, University of Miami
+        &nbsp;&bull;&nbsp; <a href="mailto:zxy584@miami.edu">zxy584@miami.edu</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  const pageIds = ['home','education','research','publications','conferences','experience','awards','hobbies'];
+  const pages   = pageIds.map(id => document.getElementById(id));
+  let current = 0, busy = false;
+
+  // Build dots
+  const dotNav = document.getElementById('dotNav');
+  pageIds.forEach((id, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => goTo(i));
+    dotNav.appendChild(d);
+  });
+
+  function goTo(idx) {
+    if (idx < 0 || idx >= pages.length || idx === current || busy) return;
+    busy = true;
+    pages[current].classList.remove('active');
+    current = idx;
+    pages[current].classList.add('active');
+    pages[current].scrollTop = 0;
+    // Update dots
+    dotNav.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === current));
+    // Update nav links
+    document.querySelectorAll('.nav-links a').forEach(a => a.classList.toggle('active', a.dataset.page === pageIds[current]));
+    setTimeout(() => { busy = false; }, 450);
+  }
+
+  // Nav & brand clicks
+  document.querySelectorAll('[data-page]').forEach(el => {
+    el.addEventListener('click', e => {
+      e.preventDefault();
+      goTo(pageIds.indexOf(el.dataset.page));
+    });
+  });
+
+  // Wheel: scroll within page first, then advance
+  window.addEventListener('wheel', e => {
+    e.preventDefault();
+    const pg = pages[current];
+    const atBottom = pg.scrollTop + pg.clientHeight >= pg.scrollHeight - 2;
+    const atTop    = pg.scrollTop <= 0;
+    if (e.deltaY > 0) { if (atBottom) goTo(current + 1); else pg.scrollTop += e.deltaY; }
+    else              { if (atTop)    goTo(current - 1); else pg.scrollTop += e.deltaY; }
+  }, { passive: false });
+
+  // Keyboard
+  window.addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown' || e.key === 'PageDown') { e.preventDefault(); goTo(current + 1); }
+    if (e.key === 'ArrowUp'   || e.key === 'PageUp')   { e.preventDefault(); goTo(current - 1); }
+  });
+
+  // Touch
+  let ty = 0;
+  window.addEventListener('touchstart', e => { ty = e.touches[0].clientY; }, { passive: true });
+  window.addEventListener('touchend',   e => {
+    const d = ty - e.changedTouches[0].clientY;
+    if (Math.abs(d) > 50) d > 0 ? goTo(current + 1) : goTo(current - 1);
+  });
+</script>
+</body>
+</html>
