@@ -33,13 +33,13 @@ matplotlib.rcParams['mathtext.fontset'] = 'cm'
 T         = 100       # total periods = total dimensions that arrive
 MU        = 1.0       # decision coefficient mu_i
 TAU2_X    = 0.5       # observation noise variance for x_{i,t}
-KAPPA     = 2.0       # cognitive cost (Bounded Rational only)
-M_BAR     = 0.05      # passive attention floor
-NU0_HAT   = 0.5       # initial prior mean of nu_i
+KAPPA     = 15.0      # cognitive cost (Bounded Rational only) -- HIGH-STICKINESS regime
+M_BAR     = 0.02      # passive attention floor (low so BR has room to "stick")
+NU0_HAT   = 0.2       # initial prior mean of nu_i (pessimistic: guarantees low initial m*)
 P0        = 1.0       # initial prior variance of nu_i
-ETA2_Z    = 1.0       # diagnostic-signal base noise variance
+ETA2_Z    = 3.0       # diagnostic-signal base noise (high => slow learning => BR stays stuck)
 NU_STEADY = 1.0       # true nu_i in steady state
-NU_SHOCK  = 3.0       # true nu_i for the shocked dimension(s)
+NU_SHOCK  = 5.0       # true nu_i for the shocked dimension(s)
 T_SHOCK   = 30        # 0-indexed arrival period of the shocked dimension
 N_SIM     = 800       # Monte Carlo replications
 SEED      = 42
