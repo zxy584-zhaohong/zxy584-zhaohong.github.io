@@ -3,6 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Zhaohong Yao (姚兆鸿) is a Ph.D. student in Economics at the University of Miami, researching macro-finance: credit card debt, global reserve currencies, and financial-sector expansion." />
+  <meta property="og:title" content="Zhaohong Yao | Ph.D. Student in Economics" />
+  <meta property="og:description" content="Ph.D. student in Economics at the University of Miami, researching macro-finance." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="photo.jpg" />
   <title>Zhaohong Yao | Ph.D. Student in Economics</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -60,7 +65,7 @@
       z-index: 150; display: flex; flex-direction: column; gap: .5rem;
     }
     .dot {
-      width: 7px; height: 7px; border-radius: 50%;
+      width: 7px; height: 7px; border-radius: 50%; appearance: none;
       background: var(--border); border: 2px solid #ccc; cursor: pointer;
       transition: background .2s, border-color .2s;
     }
@@ -253,6 +258,10 @@
     }
     .page-footer a { color: var(--orange-d); }
 
+    @media (prefers-reduced-motion: reduce) {
+      .page, .nav-links a, .dot, .contact-links a { transition: none; }
+    }
+
     /* ── Responsive ── */
     @media (max-width: 680px) {
       #home { flex-direction: column; }
@@ -272,14 +281,14 @@
 <nav>
   <span class="nav-brand" data-page="home">Zhaohong Yao</span>
   <ul class="nav-links">
-    <li><a data-page="home" class="active">About</a></li>
-    <li><a data-page="education">Education</a></li>
-    <li><a data-page="research">Research</a></li>
-    <li><a data-page="publications">Publications</a></li>
-    <li><a data-page="conferences">Conferences</a></li>
-    <li><a data-page="experience">Experience</a></li>
-    <li><a data-page="awards">Awards</a></li>
-    <li><a data-page="hobbies">Hobbies</a></li>
+    <li><a href="#home" data-page="home" class="active">About</a></li>
+    <li><a href="#education" data-page="education">Education</a></li>
+    <li><a href="#research" data-page="research">Research</a></li>
+    <li><a href="#publications" data-page="publications">Publications</a></li>
+    <li><a href="#conferences" data-page="conferences">Conferences</a></li>
+    <li><a href="#experience" data-page="experience">Experience</a></li>
+    <li><a href="#awards" data-page="awards">Awards</a></li>
+    <li><a href="#hobbies" data-page="hobbies">Hobbies</a></li>
   </ul>
 </nav>
 
@@ -387,7 +396,7 @@
           <div class="paper-tags">
             <span class="tag">Working Paper</span>
             <span class="tag">TWFE</span>
-            <span class="tag"> Hallak–Schott ex-post inference approach</span>
+            <span class="tag">Hallak–Schott ex-post inference approach</span>
           </div>
         </div>
 
@@ -589,14 +598,17 @@
 
 <script>
   const pageIds = ['home','education','research','publications','conferences','experience','awards','hobbies'];
+  const pageNames = ['About','Education','Research','Publications','Conferences','Experience','Awards','Hobbies'];
   const pages   = pageIds.map(id => document.getElementById(id));
   let current = 0, busy = false;
 
-  // Build dots
+  // Build dots (real buttons: keyboard-focusable and announced by screen readers)
   const dotNav = document.getElementById('dotNav');
   pageIds.forEach((id, i) => {
-    const d = document.createElement('div');
+    const d = document.createElement('button');
+    d.type = 'button';
     d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.setAttribute('aria-label', pageNames[i]);
     d.addEventListener('click', () => goTo(i));
     dotNav.appendChild(d);
   });
@@ -608,12 +620,22 @@
     current = idx;
     pages[current].classList.add('active');
     pages[current].scrollTop = 0;
+    // Keep the URL shareable without polluting browser history
+    history.replaceState(null, '', '#' + pageIds[current]);
     // Update dots
     dotNav.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === current));
     // Update nav links
     document.querySelectorAll('.nav-links a').forEach(a => a.classList.toggle('active', a.dataset.page === pageIds[current]));
     setTimeout(() => { busy = false; }, 450);
   }
+
+  // Deep-linking: honor #hash on load and when edited manually
+  function goToHash() {
+    const idx = pageIds.indexOf(location.hash.slice(1));
+    if (idx >= 0) goTo(idx);
+  }
+  goToHash();
+  window.addEventListener('hashchange', goToHash);
 
   // Nav & brand clicks
   document.querySelectorAll('[data-page]').forEach(el => {
@@ -623,28 +645,58 @@
     });
   });
 
-  // Wheel: scroll within page first, then advance
+  function atEdges() {
+    const pg = pages[current];
+    return {
+      pg,
+      atTop:    pg.scrollTop <= 0,
+      atBottom: pg.scrollTop + pg.clientHeight >= pg.scrollHeight - 2,
+    };
+  }
+
+  // Wheel: scroll within page first, then advance.
+  // One trackpad flick emits a long burst of momentum events; only the first
+  // event of a gesture (>150ms since the previous event) may flip the page,
+  // otherwise momentum would skip several pages at once.
+  let lastWheel = 0, gestureUsed = false;
   window.addEventListener('wheel', e => {
     e.preventDefault();
-    const pg = pages[current];
-    const atBottom = pg.scrollTop + pg.clientHeight >= pg.scrollHeight - 2;
-    const atTop    = pg.scrollTop <= 0;
-    if (e.deltaY > 0) { if (atBottom) goTo(current + 1); else pg.scrollTop += e.deltaY; }
-    else              { if (atTop)    goTo(current - 1); else pg.scrollTop += e.deltaY; }
+    const now = Date.now();
+    if (now - lastWheel > 150) gestureUsed = false;
+    lastWheel = now;
+    const { pg, atTop, atBottom } = atEdges();
+    if (e.deltaY > 0) {
+      if (atBottom) { if (!gestureUsed) { gestureUsed = true; goTo(current + 1); } }
+      else pg.scrollTop += e.deltaY;
+    } else if (e.deltaY < 0) {
+      if (atTop) { if (!gestureUsed) { gestureUsed = true; goTo(current - 1); } }
+      else pg.scrollTop += e.deltaY;
+    }
   }, { passive: false });
 
-  // Keyboard
+  // Keyboard: scroll within long pages first, flip at the edges
   window.addEventListener('keydown', e => {
-    if (e.key === 'ArrowDown' || e.key === 'PageDown') { e.preventDefault(); goTo(current + 1); }
-    if (e.key === 'ArrowUp'   || e.key === 'PageUp')   { e.preventDefault(); goTo(current - 1); }
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const down = e.key === 'ArrowDown' || e.key === 'PageDown';
+    const up   = e.key === 'ArrowUp'   || e.key === 'PageUp';
+    if (!down && !up) return;
+    e.preventDefault();
+    const { pg, atTop, atBottom } = atEdges();
+    const step = (e.key === 'PageDown' || e.key === 'PageUp') ? pg.clientHeight * .9 : 80;
+    if (down) { if (atBottom) goTo(current + 1); else pg.scrollBy({ top:  step, behavior: 'smooth' }); }
+    else      { if (atTop)    goTo(current - 1); else pg.scrollBy({ top: -step, behavior: 'smooth' }); }
   });
 
-  // Touch
+  // Touch: only flip when the page is already scrolled to its edge,
+  // so swiping through long content doesn't jump to another page
   let ty = 0;
   window.addEventListener('touchstart', e => { ty = e.touches[0].clientY; }, { passive: true });
   window.addEventListener('touchend',   e => {
     const d = ty - e.changedTouches[0].clientY;
-    if (Math.abs(d) > 50) d > 0 ? goTo(current + 1) : goTo(current - 1);
+    if (Math.abs(d) < 50) return;
+    const { atTop, atBottom } = atEdges();
+    if (d > 0 && atBottom) goTo(current + 1);
+    else if (d < 0 && atTop) goTo(current - 1);
   });
 </script>
 </body>
